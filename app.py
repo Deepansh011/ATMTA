@@ -5,6 +5,7 @@ from core.converter import convert_mealy_to_moore
 from core.models import MealyMachine
 from core.simulator import simulate_mealy, simulate_moore
 from core.validator import validate_mealy
+from visualization.graph_renderer import dot_mealy, dot_moore
 
 
 st.set_page_config(page_title="Mealy to Moore Converter", page_icon="M", layout="wide")
@@ -141,6 +142,17 @@ if st.session_state.result:
         "The Moore machine begins at START with output ε (initial). "
         "For comparison with the Mealy machine, ignore this first Moore output."
     )
+
+    st.subheader("2D State Diagrams")
+    mealy_column, moore_column = st.columns(2)
+    with mealy_column:
+        st.write("**Mealy Machine**")
+        st.graphviz_chart(dot_mealy(machine), use_container_width=True)
+        st.caption("Each edge label is input/output.")
+    with moore_column:
+        st.write("**Moore Machine**")
+        st.graphviz_chart(dot_moore(moore), use_container_width=True)
+        st.caption("Each state contains its output; each edge label is input.")
 
     st.subheader("Simulator")
     st.write("Enter an input string and compare the outputs of both machines.")
