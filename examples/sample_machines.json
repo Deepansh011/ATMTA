@@ -1,0 +1,6 @@
+[
+ {"name":"Basic binary parity","states":["Even","Odd"],"inputs":["0","1"],"outputs":["0","1"],"initial":"Even","transitions":{"Even|0":["Even","0"],"Even|1":["Odd","1"],"Odd|0":["Odd","1"],"Odd|1":["Even","0"]}},
+ {"name":"Destination split","states":["s","t","u"],"inputs":["0","1"],"outputs":["x","y"],"initial":"s","transitions":{"s|0":["t","x"],"s|1":["t","y"],"t|0":["u","x"],"t|1":["t","y"],"u|0":["s","x"],"u|1":["t","x"]}},
+ {"name":"Self loops","states":["Idle","Active"],"inputs":["tick","stop"],"outputs":["wait","go"],"initial":"Idle","transitions":{"Idle|tick":["Idle","wait"],"Idle|stop":["Active","go"],"Active|tick":["Active","go"],"Active|stop":["Idle","wait"]}},
+ {"name":"Three output symbols","states":["A","B"],"inputs":["a","b","c"],"outputs":["red","green","blue"],"initial":"A","transitions":{"A|a":["B","red"],"A|b":["B","green"],"A|c":["A","blue"],"B|a":["A","green"],"B|b":["B","blue"],"B|c":["A","red"]}}
+]
