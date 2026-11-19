@@ -3,6 +3,7 @@ import streamlit as st
 
 from core.converter import convert_mealy_to_moore
 from core.models import MealyMachine
+from core.simulator import simulate_mealy, simulate_moore
 from core.validator import validate_mealy
 
 
@@ -102,7 +103,7 @@ if st.button("Convert to Moore Machine", type="primary"):
         st.error(str(error))
 
 if st.session_state.result:
-    _, moore = st.session_state.result
+    machine, moore = st.session_state.result
     st.success("Conversion completed.")
     st.subheader("Moore states and outputs")
     st.dataframe(
@@ -140,3 +141,52 @@ if st.session_state.result:
         "The Moore machine begins at START with output ε (initial). "
         "For comparison with the Mealy machine, ignore this first Moore output."
     )
+
+    st.subheader("Simulator")
+    st.write("Enter an input string and compare the outputs of both machines.")
+    input_word = st.text_input("Input string", "0101")
+    if st.button("Run Simulation"):
+        try:
+            if any(len(symbol) > 1 for symbol in moore.inputs):
+                symbols = input_word.split()
+            else:
+                symbols = list(input_word)
+
+            _, mealy_output, mealy_rows = simulate_mealy(machine, symbols)
+            _, moore_outputs, moore_rows = simulate_moore(moore, symbols)
+            aligned_moore_output = "".join(moore_outputs[1:])
+
+            st.success(
+                "Outputs match." if mealy_output == aligned_moore_output else "Outputs do not match."
+            )
+            st.write(f"Mealy output: `{mealy_output}`")
+            st.write(f"Moore output after START: `{aligned_moore_output}`")
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {
+                            "Step": 0,
+                            "Input": "-",
+                            "Mealy state": machine.initial,
+                            "Mealy output": "-",
+                            "Moore state": moore.initial,
+                            "Moore output": moore_outputs[0],
+                        },
+                        *[
+                            {
+                                "Step": index + 1,
+                                "Input": symbol,
+                                "Mealy state": mealy_rows[index][4],
+                                "Mealy output": mealy_rows[index][3],
+                                "Moore state": moore_rows[index][4],
+                                "Moore output": moore_outputs[index + 1],
+                            }
+                            for index, symbol in enumerate(symbols)
+                        ],
+                    ]
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
+        except ValueError as error:
+            st.error(str(error))
